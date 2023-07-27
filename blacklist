@@ -1,3 +1,4 @@
+--[[
 local Phrases = {}
 
 Phrases = {
@@ -13,3 +14,5 @@ Phrases = {
 }
 
 return Phrases
+]]
+print('ur mom')
