@@ -1,18 +1,11 @@
---[[
-local Phrases = {}
-
-Phrases = {
+{
 "pistonware";
 'coldclient';
 'cold client';
-'acronisware'
+'acronisware';
 'skidware';
 'skid ware';
 'zylaware';
 'zyla';
 'piston';
 }
-
-return Phrases
-]]
-print('ur mom')
