@@ -1,4 +1,6 @@
-return {
+local Phrases = {}
+
+Phrases = {
 "pistonware";
 'coldclient';
 'cold client';
@@ -6,4 +8,8 @@ return {
 'skidware';
 'skid ware';
 'zylaware';
+'zyla';
+'piston';
 }
+
+return Phrases
