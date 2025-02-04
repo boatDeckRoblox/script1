@@ -4,6 +4,11 @@ local GameMan = {}
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+local currentTime = 0
+
+local SwordHandler = ReplicatedStorage:FindFirstChild("SharedModules").SwordHandler
+local TeleportButtonClone
+
 
 -- Kill log
 
