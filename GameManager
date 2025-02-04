@@ -189,7 +189,6 @@ function GameMan:HandleLeaderboard()
         end))
     end
     localPlayerleaderboard = function()
-        
         for i,v in game:GetService("CoreGui"):GetDescendants() do
             if objectHasProperty("Text", v) then
                 if v.Text:find(playerName) then
@@ -202,26 +201,26 @@ function GameMan:HandleLeaderboard()
             end
         end
     end
-	    task.spawn(function()
-	    for _, v in ipairs({"TopTime", "TimeAlive"}) do
-	        local stat = stats:FindFirstChild(v)
-	        if stat then
-	            stat = fakeStat(stat)
-	            if v == "TimeAlive" then
-	                stat.Value = desiredTime
-	                if typeof(stat.Changed) == "RBXScriptSignal" then
-	                    stat.Changed:Connect(function()
-	                        stat.Value = desiredTime
-	                    end)
-	                else
-	                    warn("Changed is not an event for stat:", v)
-	                end
-	            else
-	                stat.Value = FRAMING_RESTORE_PLAYER.special_items.TopTime
-	            end
-	        end
-	    end
-	end)
+    task.spawn(function()  -- ✅ Start of coroutine
+    for _, v in ipairs({"TopTime", "TimeAlive"}) do
+        local stat = stats:FindFirstChild(v)
+        if stat then
+            stat = fakeStat(stat)
+            if v == "TimeAlive" then
+                stat.Value = desiredTime
+                if typeof(stat.Changed) == "RBXScriptSignal" then
+                    stat.Changed:Connect(function()
+                        stat.Value = desiredTime
+                    end)
+                else
+                    warn("Changed is not an event for stat:", v)
+                end
+            else
+                stat.Value = FRAMING_RESTORE_PLAYER.special_items.TopTime
+            end
+        end
+    end
+end)
     localPlayerleaderboard()
 end
 
