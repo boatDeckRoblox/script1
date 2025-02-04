@@ -29,5 +29,3 @@ end
 
 return ModuleLoader
 
-
-return ModuleLoader
