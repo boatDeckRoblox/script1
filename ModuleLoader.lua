@@ -14,7 +14,6 @@ local Modules = {
 function ModuleLoader:LoadModule(moduleToLoad)
     if table.find(Modules, moduleToLoad) then
       local name = (githubStarter:gsub("ModName", moduleToLoad))
-    print(name)
         return loadstring(game:HttpGet(name))()
     else
         warn("Module " .. moduleToLoad .. " not found.")
