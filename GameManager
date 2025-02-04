@@ -4,6 +4,8 @@ local GameMan = {}
 
 local currentTime = 0
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local SwordHandler = ReplicatedStorage:FindFirstChild("SharedModules").SwordHandler
 local TeleportButtonClone
 
