@@ -14,3 +14,5 @@ local function ModuleLoader:LoadModule(moduleToLoad)
     loadstring(game:HttpGet(githubStarter:gsub("ModName",moduleToLoad))
   end
 end
+    
+return ModuleLoader
