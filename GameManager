@@ -128,9 +128,10 @@ local function equip(toolName, frameName)
     else
         -- Unequip the tool if it's already equipped
         BackpackFrameClone[frameName].BackgroundColor3 = Color3.fromRGB(61, 61, 61)
-        BackpackFrameClone[frameName]:SetAttribute("equipped", false)
+        BackpackFrameClone[frameName]:SetAttribute("equipped", false) -- ✅ Explicitly set as boolean
     end
 end
+
 
 
 local function GetSwordImage(swordName)
