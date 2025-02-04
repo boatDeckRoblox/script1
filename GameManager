@@ -1,8 +1,6 @@
 local GameMan = {}
 
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 
 local currentTime = 0
 
@@ -90,33 +88,48 @@ end
 
 
 --Backpack Functions
-
 local function equip(toolName, frameName)
-	if not LocalPlayer or not LocalPlayer.Character or not toolName then return end
-	local hum = LocalPlayer.Character:WaitForChild("Humanoid")
-	if not hum then return end
+    if not LocalPlayer or not LocalPlayer.Character or not toolName or not frameName then
+        warn("Equip aborted: Missing LocalPlayer, Character, toolName, or frameName.")
+        return
+    end
 
-	hum:UnequipTools()
+    local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+    if not hum then
+        warn("Equip aborted: Humanoid not found.")
+        return
+    end
 
-	for _, frame in ipairs(BackpackFrameClone:GetChildren()) do
-		if frame:IsA("Frame") and frame.Name ~= frameName then
-			frame.BackgroundColor3 = Color3.fromRGB(61, 61, 61)
-			frame:SetAttribute("equipped", false)
-		end
-	end
+    -- Unequip all current tools
+    hum:UnequipTools()
 
-	if not BackpackFrameClone[frameName]:GetAttribute("equipped") then
-		BackpackFrameClone[frameName]:SetAttribute("equipped", true)
+    -- Clear selection visuals and reset equipped state
+    for _, frame in ipairs(BackpackFrameClone:GetChildren()) do
+        if frame:IsA("Frame") and frame.Name ~= frameName then
+            frame.BackgroundColor3 = Color3.fromRGB(61, 61, 61)
+            frame:SetAttribute("equipped", false) -- ✅ Ensure boolean value
+        end
+    end
 
-		local tool = LocalPlayer.Character:FindFirstChild(toolName) or LocalPlayer.Backpack:FindFirstChild(toolName)
-		if tool then
-			BackpackFrameClone[frameName].BackgroundColor3 = Color3.fromRGB(80, 218, 135)
-			hum:EquipTool(tool)
-		end
-	else
-		BackpackFrameClone[frameName].BackgroundColor3 = Color3.fromRGB(61, 61, 61)
-		BackpackFrameClone[frameName]:SetAttribute("equipped", false)
-	end
+    -- Check if the tool is already equipped
+    local isEquipped = BackpackFrameClone[frameName]:GetAttribute("equipped") == true
+
+    if not isEquipped then
+        -- Equip the tool
+        BackpackFrameClone[frameName]:SetAttribute("equipped", true) -- ✅ Explicitly set as boolean
+
+        local tool = LocalPlayer.Character:FindFirstChild(toolName) or LocalPlayer.Backpack:FindFirstChild(toolName)
+        if tool then
+            BackpackFrameClone[frameName].BackgroundColor3 = Color3.fromRGB(80, 218, 135)
+            hum:EquipTool(tool)
+        else
+            warn("Tool not found: " .. toolName)
+        end
+    else
+        -- Unequip the tool if it's already equipped
+        BackpackFrameClone[frameName].BackgroundColor3 = Color3.fromRGB(61, 61, 61)
+        BackpackFrameClone[frameName]:SetAttribute("equipped", false)
+    end
 end
 
 
