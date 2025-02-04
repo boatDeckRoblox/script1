@@ -1,13 +1,5 @@
 local ModuleLoader = {}
 
-local githubStarter = "https://raw.githubusercontent.com/boatDeckRoblox/script1/refs/heads/main/ModName"
-
-local Modules = {
-  "SwordModule",
-  "ExploiterModule",
-  "GameManager"  
-}
-
 
 local ModuleLoader = {}
 
@@ -21,7 +13,9 @@ local Modules = {
 
 function ModuleLoader:LoadModule(moduleToLoad)
     if table.find(Modules, moduleToLoad) then
-        return loadstring(game:HttpGet(githubStarter:gsub("ModName", moduleToLoad)))()
+      local name = (githubStarter:gsub("ModName", moduleToLoad))
+    print(name)
+        return loadstring(game:HttpGet(name))()
     else
         warn("Module " .. moduleToLoad .. " not found.")
     end
