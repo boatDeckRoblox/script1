@@ -138,4 +138,24 @@ function GameStatsUI:AddStatRow(statName, statValue)
     return newRow
 end
 
+function GameStatsUI:RefreshStats(getStatsFunc, refreshInterval)
+    refreshInterval = refreshInterval or 3
+    local lastTick = tick()
+    RunService.Heartbeat:Connect(function()
+        if tick() - lastTick >= refreshInterval then
+            local stats = getStatsFunc()
+            for statName, newValue in pairs(stats) do
+                local row = self.StatRows[statName]
+                if row then
+                    local valueLabel = row:FindFirstChild("Value")
+                    if valueLabel then
+                        valueLabel.Text = tostring(newValue)
+                    end
+                end
+            end
+            lastTick = tick()
+        end
+    end)
+end
+
 return GameStatsUI
