@@ -1,276 +1,141 @@
-local GameMan = {}
+local GameStatsUI = {}
+GameStatsUI.__index = GameStatsUI
 
-
-
-local currentTime = 0
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local SwordHandler = ReplicatedStorage:FindFirstChild("SharedModules").SwordHandler
-local TeleportButtonClone
-
-
--- Kill log
-
-
-
-
-function GameMan:ManipulateTimeAlive()
-    local HUD = LocalPlayer.Character:FindFirstChild("HUD", true)
-    local HasOver1kTime = desiredTime >= 1000
-    for i=1,2 do
-        ChangePlayer() --  Change player appearence
+-- Helper function to create a new instance with a table of properties.
+local function createObject(className, props)
+    local obj = Instance.new(className)
+    if props then
+        for prop, value in pairs(props) do
+            if prop ~= "Parent" then
+                obj[prop] = value
+            end
+        end
+        if props.Parent then
+            obj.Parent = props.Parent
+        end
     end
-    cloned = HUD:Clone()
-    HUD:ClearAllChildren()
-    cloned.Parent = LocalPlayer.Character.Head
-    ApplyTime()
-    if isOutsideSpawn() then
-        TeleportFrame.Visible = true
-    end
+    return obj
+end
 
+
+function GameStatsUI:Init(parent)
+    playerGui = parent or game.Players.LocalPlayer:WaitForChild("PlayerGui")
     
-    cloned.TimeDisplay.TextLabel.TextColor3 = FRAMING_RESTORE_PLAYER.special_items.Text.UseCustomColor and FRAMING_RESTORE_PLAYER.special_items.Text.Color
-    task.spawn(function()
-        while task.wait(1) do
-            if isAlive() and isOutsideSpawn() and updateTime then
-                ApplyTime(1)
-                
-                if desiredTime >= LocalPlayer.leaderstats.TopTime.Value then
-                    LocalPlayer.leaderstats.TopTime.Value = desiredTime
-                end
-                currentTime = cloned.TimeDisplay.TextLabel.Text
-                HasOver1kTime = desiredTime >= 1000
-                TeleportFrame.Visible = HasOver1kTime
-            else
-                TeleportFrame.Visible = false
-            end
-            if not isAlive() then break end
-        end
-    end)
+    -- Create the ScreenGui
+    self.screenGui = createObject("ScreenGui", {
+        Parent = playerGui,
+        Name = "GameStats"
+    })
+    
+    -- Create a full-screen background frame
+    self.fullScreenFrame = createObject("Frame", {
+        Parent = self.screenGui,
+        BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+        Size = UDim2.new(3, 0, 3, 0),
+        Position = UDim2.new(-1, 0, -1, 0)
+    })
+    
+    self.container = createObject("Frame", {
+        Parent = self.fullScreenFrame,
+        BackgroundColor3 = Color3.fromRGB(61, 61, 61),
+        BorderSizePixel = 0,
+        Size = UDim2.new(0, 600, 0, 600),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BorderColor3 = Color3.fromRGB(0, 0, 0)
+    })
+    createObject("UICorner", { Parent = self.container })
+    
+    createObject("UIListLayout", {
+        Parent = self.container,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Wraps = true
+    })
+    
+    self.template = createObject("Frame", {
+        Parent = self.fullScreenFrame,
+        BackgroundColor3 = Color3.fromRGB(49, 49, 49),
+        BorderSizePixel = 0,
+        Size = UDim2.new(0, 200, 0, 200),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Name = "Template"
+    })
+    createObject("UICorner", { Parent = self.template })
+    
+    local statNameLabel = createObject("TextLabel", {
+        Parent = self.template,
+        Name = "StatName",
+        Text = "Stat Name",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        TextScaled = true,
+        TextWrapped = true,
+        TextColor3 = Color3.fromRGB(245, 245, 245),
+        Size = UDim2.new(0, 200, 0, 50),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        FontFace = Font.new("rbxasset://fonts/families/Oswald.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+    })
+    createObject("UIStroke", { Parent = statNameLabel, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Thickness = 2 })
+    createObject("UICorner", { Parent = statNameLabel })
+    
+    local valueLabel = createObject("TextLabel", {
+        Parent = self.template,
+        Name = "Value",
+        Text = "stat value",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        TextScaled = true,
+        TextWrapped = true,
+        TextColor3 = Color3.fromRGB(245, 245, 245),
+        Size = UDim2.new(0, 195, 0, 75),
+        Position = UDim2.new(0.01, 0, 0.55, 0),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        FontFace = Font.new("rbxasset://fonts/families/Jura.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+    })
+    createObject("UIStroke", { Parent = valueLabel, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Thickness = 2 })
+    createObject("UICorner", { Parent = valueLabel })
+    
+    self.headerLabel = createObject("TextLabel", {
+        Parent = self.fullScreenFrame,
+        Name = "GameStats",
+        Text = "Game Stats",
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        TextScaled = true,
+        TextWrapped = true,
+        TextColor3 = Color3.fromRGB(0, 0, 0),
+        Size = UDim2.new(0, 459, 0, 150),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        TextTransparency = 0.25,
+        FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Light, Enum.FontStyle.Normal),
+        Position = UDim2.new(0.457, 0, 0.35, 0)
+    })
+    createObject("UICorner", { Parent = self.headerLabel })
+    createObject("UIStroke", { Parent = self.headerLabel, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Thickness = 2 })
+    
+    self.template.Visible = false  -- Hide the template so it isn't visible directly
+    return self
 end
 
-
-function GameMan:findlPlayerLog(playerName)
-    playerName = playerName or LocalPlayer.Name
-    playerName = playerName:lower():gsub("%s+", "") -- Normalize input: lowercase and remove spaces
-    for _, v in KillLogs:GetChildren() do
-        if v.Name == "Template" and not v:HasTag("Changed") then
-             -- "Checking log: " .. v.Text)
-            local diedPlayer = findDied(v.Text)
-            if diedPlayer then
-                diedPlayer = diedPlayer:lower():gsub("%s+", "") -- Normalize extracted name
-                 -- ('findlPlayerLog',"Extracted killed player (normalized): " .. tostring(diedPlayer))
-                if diedPlayer == playerName then
-                     -- ('findlPlayerLog',"MATCH FOUND: " .. diedPlayer .. " == " .. playerName)
-                    v:AddTag("Changed")
-                    return v
-                else
-                     -- ('findlPlayerLog',"NO MATCH: " .. diedPlayer .. " ~= " .. playerName)
-                end
-            end
-        end
+function GameStatsUI:AddStatRow(statName, statValue)
+    local newRow = self.template:Clone()
+    newRow.Name = statName .. "Row"
+    newRow.Visible = true
+    local nameLabel = newRow:FindFirstChild("StatName")
+    if nameLabel then
+        nameLabel.Text = statName
     end
-     -- ('findlPlayerLog',"No kill log found for player: " .. playerName)
-    return nil
+    local valueLabel = newRow:FindFirstChild("Value")
+    if valueLabel then
+        valueLabel.Text = tostring(statValue)
+    end
+    newRow.Parent = self.container
+    return newRow
 end
 
-function  GameMan.ChangePlayerTime_KillLog(time)
-    local kLog = findlPlayerLog()
-    if kLog then
-        local name = FRAMING_RESTORE_PLAYER.username
-        local timeDied = kLog.Text:match("%((%d+)%)")
-        timeDied = tonumber(timeDied)
-        local textToChangeTo = string.gsub(kLog.Text, "%(" .. timeDied .. "%)", "(" .. currentTime .. ")")
-        textToChangeTo = string.gsub(textToChangeTo, LocalPlayer.Name, name)
-        kLog.Text = textToChangeTo
-    end
-end
-
-
-
---Backpack Functions
-local function equip(toolName, frameName)
-    if not LocalPlayer or not LocalPlayer.Character or not toolName or not frameName then
-        warn("Equip aborted: Missing LocalPlayer, Character, toolName, or frameName.")
-        return
-    end
-
-    local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
-    if not hum then
-        warn("Equip aborted: Humanoid not found.")
-        return
-    end
-
-    -- Unequip all current tools
-    hum:UnequipTools()
-
-    -- Clear selection visuals and reset equipped state
-    for _, frame in ipairs(BackpackFrameClone:GetChildren()) do
-        if frame:IsA("Frame") and frame.Name ~= frameName then
-            frame.BackgroundColor3 = Color3.fromRGB(61, 61, 61)
-            frame:SetAttribute("equipped", false) -- ✅ Ensure boolean value
-        end
-    end
-
-    -- Check if the tool is already equipped
-    local isEquipped = BackpackFrameClone[frameName]:GetAttribute("equipped") == true
-
-    if not isEquipped then
-        -- Equip the tool
-        BackpackFrameClone[frameName]:SetAttribute("equipped", true) -- ✅ Explicitly set as boolean
-
-        local tool = LocalPlayer.Character:FindFirstChild(toolName) or LocalPlayer.Backpack:FindFirstChild(toolName)
-        if tool then
-            BackpackFrameClone[frameName].BackgroundColor3 = Color3.fromRGB(80, 218, 135)
-            hum:EquipTool(tool)
-        else
-            warn("Tool not found: " .. toolName)
-        end
-    else
-        -- Unequip the tool if it's already equipped
-        BackpackFrameClone[frameName].BackgroundColor3 = Color3.fromRGB(61, 61, 61)
-        BackpackFrameClone[frameName]:SetAttribute("equipped", false) -- ✅ Explicitly set as boolean
-    end
-end
-
-
-
-local function GetSwordImage(swordName)
-    local SwordsInfo = require(SwordHandler).Info -- Directly access the Info table
-    if SwordsInfo[swordName] then
-        return SwordsInfo[swordName].Img
-    else
-        warn("Sword not found: " .. tostring(swordName))
-        return nil
-    end
-end
-
-
-function GameMan:HandleBackpack()
-    local swords = FRAMING_RESTORE_PLAYER.special_items.Backpack
-    local slotNames = {"One", "Two", "Three"} -- Define slot names in order
-    local NameToIndex = {
-        One = 1,
-        Two = 2,
-        Three = 3
-    }
-    UserInputService.InputBegan:Connect(function(input, ige)
-        if ige then return end
-        local Index = input.KeyCode.Name
-        
-        if table.find(slotNames, Index) then
-            equip(swords[NameToIndex[Index]], Index)
-        end
-    end)
-    for index, swordName in pairs(swords) do
-        local slotName = slotNames[index]
-        if slotName then 
-            local image = GetSwordImage(swordName) -- Get the image for the sword
-            local img_frame = BackpackFrameClone:FindFirstChild(slotName):FindFirstChild("img")
-            if img_frame and not img_frame:HasTag("Changed") then -- Ensure frame exists and hasn't been modified
-                img_frame.Image = image
-                img_frame:AddTag("Changed") -- Mark as changed
-                DisableConnection(img_frame.MouseButton1Down)
-                img_frame.MouseButton1Down:Connect(function()
-                    equip(swordName, slotName)
-                end)
-            end
-        else
-            warn("No slot available for index: " .. tostring(index))
-        end
-    end
-end
-
-
-
-
--- Misc
-
-function GameMan:HandleLeaderboard()
-    local stats = LocalPlayer:FindFirstChild("leaderstats")
-    local newName = getDisplayName()
-    local playerName = LocalPlayer.Name
-    local playerDisplayName = LocalPlayer.DisplayName
-    local function objectHasProperty(property, instance)
-        local success, result = pcall(function()
-            return instance[property] and typeof(instance[property]) ~= "Instance"
-        end)
-        return success and result
-    end
-    local function fakeStat(stat)
-        local clonedstat = stat:Clone()
-        stat:Destroy()
-        clonedstat.Parent = stats
-        return clonedstat
-    end
-
-    local function createChangeEvent(txtBox: TextSource, updateText)
-        registerConnection(txtBox:GetPropertyChangedSignal("Text"):Connect(function()
-            local newtxt = txtBox.Text
-            newtxt = updateText
-        end))
-    end
-    localPlayerleaderboard = function()
-        for i,v in game:GetService("CoreGui"):GetDescendants() do
-            if objectHasProperty("Text", v) then
-                if v.Text:find(playerName) then
-                    createChangeEvent(v, playerName)
-                    v.Text = v.Text:gsub(playerName, newName)
-                elseif v.Text:find(playerDisplayName) then
-                    createChangeEvent(v, playerDisplayName)
-                    v.Text = v.Text:gsub(playerDisplayName, newName)
-                end
-            end
-        end
-    end
-    task.spawn(function()  -- ✅ Start of coroutine
-    for _, v in ipairs({"TopTime", "TimeAlive"}) do
-        local stat = stats:FindFirstChild(v)
-        if stat then
-            stat = fakeStat(stat)
-            if v == "TimeAlive" then
-                stat.Value = desiredTime
-                if typeof(stat.Changed) == "RBXScriptSignal" then
-                    stat.Changed:Connect(function()
-                        stat.Value = desiredTime
-                    end)
-                else
-                    warn("Changed is not an event for stat:", v)
-                end
-            else
-                stat.Value = FRAMING_RESTORE_PLAYER.special_items.TopTime
-            end
-        end
-    end
-end)
-    localPlayerleaderboard()
-end
-
-
-
-function GameMan:HandleTPFrame()
-
-    local TeleportButton = TeleportFrame:WaitForChild("TextButton")
-    local ButtonPressed = false
-    TeleportButtonClone = TeleportButton:Clone()
-    TeleportButton:Destroy()
-    TeleportButtonClone.Parent = TeleportFrame
-    TeleportButtonClone.MouseButton1Down:Connect(function()
-        if not ButtonPressed then
-            ButtonPressed = true
-            for i=1,3 do
-                TeleportButtonClone.Text = "0"..tostring(i-4):gsub("-", "")
-                task.wait(1)
-            end
-            TeleportButtonClone.Text = "Teleporting..."
-            task.wait(0.4)
-            ButtonPressed = false
-            TeleportFrame.Visible = false
-            TeleportButtonClone.Text = "Teleport to Spawn"
-        end
-    end)
-end
-
-
-return GameMan
+return GameStatsUI
