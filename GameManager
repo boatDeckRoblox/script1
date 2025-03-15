@@ -21,7 +21,7 @@ end
 
 
 function GameStatsUI:Init(parent)
-    playerGui = parent or game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    playerGui = parent or gethid()
     
     -- Create the ScreenGui
     self.screenGui = createObject("ScreenGui", {
