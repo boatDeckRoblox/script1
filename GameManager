@@ -1,6 +1,8 @@
 local GameStatsUI = {}
 GameStatsUI.__index = GameStatsUI
 
+local RunService = game:GetService("RunService")
+
 -- Helper function to create a new instance with a table of properties.
 local function createObject(className, props)
     local obj = Instance.new(className)
