@@ -137,6 +137,7 @@ function GameStatsUI:AddStatRow(statName, statValue)
         valueLabel.Text = tostring(statValue)
     end
     newRow.Parent = self.container
+    self.StatRows = {}
     return newRow
 end
 
