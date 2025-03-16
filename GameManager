@@ -21,7 +21,7 @@ end
 
 
 function GameStatsUI:Init(parent)
-    playerGui = parent or gethid()
+    parent = parent or gethid()
     
     -- Create the ScreenGui
     self.screenGui = createObject("ScreenGui", {
